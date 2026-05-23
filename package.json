@@ -1,0 +1,40 @@
+{
+  "name": "hcg-color-picker-react",
+  "version": "2.0.0",
+  "description": "Google Chrome style color picker — React component, lightweight, alpha support, EyeDropper API.",
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "ColorPicker.jsx",
+    "ColorPicker.css",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "color-picker",
+    "color",
+    "picker",
+    "chrome",
+    "react",
+    "eyedropper",
+    "rgba",
+    "hsla",
+    "alpha",
+    "react-component"
+  ],
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "author": "HTML Code Generator <htmlcodegenerator.com@gmail.com> (https://www.html-code-generator.com/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/html-code-generator/hcg-color-picker-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/html-code-generator/hcg-color-picker-react/issues"
+  },
+  "homepage": "https://github.com/html-code-generator/hcg-color-picker-react#readme"
+}
