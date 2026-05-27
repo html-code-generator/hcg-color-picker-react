@@ -126,7 +126,11 @@ function buildColorSet(h, s, l, a) {
 
 // -- Component -------------------------------------------------------
 const ColorPicker = forwardRef(function ColorPicker(
+<<<<<<< HEAD
     { color = '#ff0000', onChange, onOpen, onClose, alpha: alphaEnabled = true, debounce: debounceMs = 0, disabled = false, className, style },
+=======
+    { color = '#ff0000', onChange, alpha: alphaEnabled = true, debounce: debounceMs = 0, disabled = false, className, style },
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     ref
 ) {
     // -- Unique SVG IDs for this instance -----------------------
@@ -149,6 +153,7 @@ const ColorPicker = forwardRef(function ColorPicker(
     const colorModeRef  = useRef('HEXA');
     const alphaOnRef    = useRef(alphaEnabled);
     const onChangeRef   = useRef(onChange);
+<<<<<<< HEAD
     const onOpenRef     = useRef(onOpen);
     const onCloseRef    = useRef(onClose);
     useEffect(() => { colorModeRef.current = colorMode; }, [colorMode]);
@@ -156,13 +161,21 @@ const ColorPicker = forwardRef(function ColorPicker(
     useEffect(() => { onChangeRef.current  = onChange; }, [onChange]);
     useEffect(() => { onOpenRef.current    = onOpen; },  [onOpen]);
     useEffect(() => { onCloseRef.current   = onClose; }, [onClose]);
+=======
+    useEffect(() => { colorModeRef.current = colorMode; }, [colorMode]);
+    useEffect(() => { alphaOnRef.current   = alphaEnabled; }, [alphaEnabled]);
+    useEffect(() => { onChangeRef.current  = onChange; }, [onChange]);
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
 
     // -- Debounce refs ------------------------------------------
     const debounceRef      = useRef(debounceMs);
     const emitTimerRef     = useRef(null);
     const pendingColorsRef = useRef(null);
+<<<<<<< HEAD
     const pendingSourceRef = useRef(null);
     const colorSourceRef   = useRef('drag');   // 'drag' | 'input' | 'api' | 'eyedropper'
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     useEffect(() => { debounceRef.current = debounceMs; }, [debounceMs]);
 
     // -- Active drag ('box' | 'hue' | 'alpha' | null) ----------
@@ -250,9 +263,14 @@ const ColorPicker = forwardRef(function ColorPicker(
             clearTimeout(emitTimerRef.current);
             emitTimerRef.current = null;
             if (pendingColorsRef.current) {
+<<<<<<< HEAD
                 onChangeRef.current?.(pendingColorsRef.current, pendingSourceRef.current);
                 pendingColorsRef.current = null;
                 pendingSourceRef.current = null;
+=======
+                onChangeRef.current?.(pendingColorsRef.current);
+                pendingColorsRef.current = null;
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             }
         }
     };
@@ -267,6 +285,7 @@ const ColorPicker = forwardRef(function ColorPicker(
             btnRef.current.style.background = colors.hexa;
         }
         colorPrevRef.current?.setAttribute('fill', colors.hexa);
+<<<<<<< HEAD
         const src = colorSourceRef.current;
         if (debounceRef.current > 0) {
             pendingColorsRef.current = colors;
@@ -280,6 +299,18 @@ const ColorPicker = forwardRef(function ColorPicker(
             }, debounceRef.current);
         } else {
             onChangeRef.current?.(colors, src);
+=======
+        if (debounceRef.current > 0) {
+            pendingColorsRef.current = colors;
+            clearTimeout(emitTimerRef.current);
+            emitTimerRef.current = setTimeout(() => {
+                emitTimerRef.current = null;
+                onChangeRef.current?.(pendingColorsRef.current);
+                pendingColorsRef.current = null;
+            }, debounceRef.current);
+        } else {
+            onChangeRef.current?.(colors);
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
         }
     }
 
@@ -357,6 +388,7 @@ const ColorPicker = forwardRef(function ColorPicker(
         colorPrevRef.current?.setAttribute('fill', lastHex.current || HSLAToRGBA(h, s, l, a, true));
     }, [isOpen]);
 
+<<<<<<< HEAD
     // -- Fire onOpen / onClose callbacks -----------------------
     const mountedRef = useRef(false);
     useEffect(() => {
@@ -365,6 +397,8 @@ const ColorPicker = forwardRef(function ColorPicker(
         else        onCloseRef.current?.(lastHex.current);
     }, [isOpen]);
 
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     // -- Sync inputs when color mode changes --------------------
     useEffect(() => {
         if (!isOpen) return;
@@ -446,7 +480,11 @@ const ColorPicker = forwardRef(function ColorPicker(
             setInputs(parsed.h, parsed.s, parsed.l, parsed.a);
             colorPrevRef.current?.setAttribute('fill', colors.hexa);
         }
+<<<<<<< HEAD
         onChangeRef.current?.(colors, 'api');
+=======
+        onChangeRef.current?.(colors);
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     };
 
     // -- Public API via ref -------------------------------------
@@ -488,7 +526,10 @@ const ColorPicker = forwardRef(function ColorPicker(
             cur.current = { ...p };
             setStops(p.h);
             setDraggers(p.h, p.s, p.l, p.a);
+<<<<<<< HEAD
             colorSourceRef.current = 'input';
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             emitChange();
         }
     }
@@ -503,7 +544,10 @@ const ColorPicker = forwardRef(function ColorPicker(
         cur.current = { ...p };
         setStops(p.h);
         setDraggers(p.h, p.s, p.l, p.a);
+<<<<<<< HEAD
         colorSourceRef.current = 'input';
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
         queueUpdate();   // RAF-throttled — skips focused input, prevents event flood
     }
     function onHslaChange() {
@@ -516,7 +560,10 @@ const ColorPicker = forwardRef(function ColorPicker(
         cur.current = { h, s, l, a };
         setStops(h);
         setDraggers(h, s, l, a);
+<<<<<<< HEAD
         colorSourceRef.current = 'input';
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
         queueUpdate();   // RAF-throttled — skips focused input, prevents event flood
     }
 
@@ -536,7 +583,10 @@ const ColorPicker = forwardRef(function ColorPicker(
             setStops(p.h);
             setDraggers(p.h, p.s, p.l, p.a);
             setInputs(p.h, p.s, p.l, p.a);
+<<<<<<< HEAD
             colorSourceRef.current = 'eyedropper';
+=======
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             emitChange();
         } catch (_) {}
     }
@@ -555,7 +605,11 @@ const ColorPicker = forwardRef(function ColorPicker(
                 width="230"
                 height="130"
                 style={{ touchAction: 'none' }}
+<<<<<<< HEAD
                 onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'box'; colorSourceRef.current = 'drag'; fn.current.box(e.clientX, e.clientY); }}
+=======
+                onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'box'; fn.current.box(e.clientX, e.clientY); }}
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                 onPointerMove={e => { if (drag.current !== 'box') return; fn.current.box(e.clientX, e.clientY); }}
                 onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                 onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}
@@ -635,7 +689,11 @@ const ColorPicker = forwardRef(function ColorPicker(
                         ref={hueSliderRef}
                         width="148" height="22"
                         style={{ touchAction: 'none' }}
+<<<<<<< HEAD
                         onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'hue'; colorSourceRef.current = 'drag'; fn.current.hue(e.clientX); }}
+=======
+                        onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'hue'; fn.current.hue(e.clientX); }}
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                         onPointerMove={e => { if (drag.current !== 'hue') return; fn.current.hue(e.clientX); }}
                         onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                         onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}
@@ -669,7 +727,11 @@ const ColorPicker = forwardRef(function ColorPicker(
                             ref={alphaSliderRef}
                             width="148" height="22"
                             style={{ touchAction: 'none' }}
+<<<<<<< HEAD
                             onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'alpha'; colorSourceRef.current = 'drag'; fn.current.alpha(e.clientX); }}
+=======
+                            onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'alpha'; fn.current.alpha(e.clientX); }}
+>>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                             onPointerMove={e => { if (drag.current !== 'alpha') return; fn.current.alpha(e.clientX); }}
                             onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                             onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}

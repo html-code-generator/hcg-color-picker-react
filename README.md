@@ -2,7 +2,14 @@
 
 A Google Chrome style color picker — React component, lightweight, alpha support, EyeDropper API.
 
-> **Also available as:** [Vanilla JS](https://github.com/html-code-generator/hcg-color-picker) &nbsp;·&nbsp; [Vanilla JS npm](https://www.npmjs.com/package/hcg-color-picker) &nbsp;·&nbsp; [React GitHub](https://github.com/html-code-generator/hcg-color-picker-react)
+> **Also available as:** [Vanilla JS](https://github.com/html-code-generator/hcg-color-picker) &nbsp;·&nbsp; [Vanilla JS npm](https://www.npmjs.com/package/hcg-color-picker) &nbsp;·&nbsp; [npm package](https://www.npmjs.com/package/hcg-color-picker-react)
+
+---
+
+## Preview
+
+![Color Picker](chrome-style-color-picker.PNG)
+![Color Picker Without Alpha](chrome-style-color-picker-without-alpha.PNG)
 
 ---
 
@@ -231,6 +238,48 @@ function App() {
             <ColorPicker color="#f44336" onChange={c => console.log('Picker 1:', c.hex)} />
             <ColorPicker color="#4caf50" onChange={c => console.log('Picker 2:', c.hex)} />
             <ColorPicker color="#2196f3" alpha={false} onChange={c => console.log('Picker 3:', c.hex)} />
+        </div>
+    );
+}
+```
+
+---
+
+## TypeScript
+
+The package ships with a bundled `index.d.ts` — no `@types/` install needed.
+
+```tsx
+import { useRef } from 'react';
+import ColorPicker, {
+    HcgColorSet,
+    HcgColorSource,
+    ColorPickerRef,
+    ColorPickerProps,
+} from 'hcg-color-picker-react';
+import 'hcg-color-picker-react/ColorPicker.css';
+
+function App() {
+    const pickerRef = useRef<ColorPickerRef>(null);
+
+    const handleChange = (colors: HcgColorSet, source: HcgColorSource) => {
+        console.log(colors.hex);   // "#ff0000"
+        console.log(colors.rgba);  // "rgba(255, 0, 0, 1)"
+        console.log(source);       // "drag" | "input" | "api" | "eyedropper"
+    };
+
+    const props: ColorPickerProps = {
+        color:    '#ff0000',
+        alpha:    true,
+        debounce: 150,
+        onChange: handleChange,
+    };
+
+    return (
+        <div>
+            <ColorPicker ref={pickerRef} {...props} />
+            <button onClick={() => pickerRef.current?.setColor('#00ff00')}>Set Green</button>
+            <button onClick={() => console.log(pickerRef.current?.getColor())}>Get Color</button>
         </div>
     );
 }
