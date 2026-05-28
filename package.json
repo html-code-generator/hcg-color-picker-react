@@ -1,6 +1,6 @@
 {
   "name": "hcg-color-picker-react",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "description": "Google Chrome style color picker — React component, lightweight, alpha support, EyeDropper API.",
   "main": "index.js",
   "module": "index.js",

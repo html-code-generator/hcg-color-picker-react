@@ -6,8 +6,8 @@ import './ColorPicker.css';
 let _instanceCount = 0;
 
 // -- Module-level helpers (stable references) -----------------------
-const clamp   = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
-const HEX_RE  = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const clamp  = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+const HEX_RE = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 // -- Color converters ------------------------------------------------
 function HSLAToRGBA(h, s, l, a, toHex) {
@@ -126,11 +126,7 @@ function buildColorSet(h, s, l, a) {
 
 // -- Component -------------------------------------------------------
 const ColorPicker = forwardRef(function ColorPicker(
-<<<<<<< HEAD
     { color = '#ff0000', onChange, onOpen, onClose, alpha: alphaEnabled = true, debounce: debounceMs = 0, disabled = false, className, style },
-=======
-    { color = '#ff0000', onChange, alpha: alphaEnabled = true, debounce: debounceMs = 0, disabled = false, className, style },
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     ref
 ) {
     // -- Unique SVG IDs for this instance -----------------------
@@ -138,53 +134,52 @@ const ColorPicker = forwardRef(function ColorPicker(
     const uid = name => `hcg_${iid.current}_${name}`;
 
     // -- UI state -----------------------------------------------
-    const [isOpen,      setIsOpen]      = useState(false);
-    const [colorMode,   setColorMode]   = useState('HEXA');
-    const [pickerPos,   setPickerPos]   = useState({ top: 0, left: 0 });
+    const [isOpen,       setIsOpen]       = useState(false);
+    const [colorMode,    setColorMode]    = useState('HEXA');
+    const [pickerPos,    setPickerPos]    = useState({ top: 0, left: 0 });
     const [alphaVisible, setAlphaVisible] = useState(alphaEnabled);
-    const [copyDone,    setCopyDone]    = useState(false);
+    const [copyDone,     setCopyDone]     = useState(false);
     const copyTimeoutRef = useRef(null);
 
     // -- Current color (ref - no re-render during drag) ---------
-    const cur     = useRef(parseColor(isValidColorString(color) ? color : '#ff0000'));
-    const lastHex = useRef('');
+    const cur = useRef(parseColor(isValidColorString(color) ? color : '#ff0000'));
+    // - fix 6: initialise with the real starting hex so defaultValue and early getColor() are correct
+    const _ia    = alphaEnabled ? cur.current.a : 1;
+    const _irgba = HSLAToRGBA(cur.current.h, cur.current.s, cur.current.l, _ia);
+    const lastHex = useRef(RGBAToHexA(_irgba.r, _irgba.g, _irgba.b, _ia));
 
     // -- Keep refs in sync --------------------------------------
-    const colorModeRef  = useRef('HEXA');
-    const alphaOnRef    = useRef(alphaEnabled);
-    const onChangeRef   = useRef(onChange);
-<<<<<<< HEAD
-    const onOpenRef     = useRef(onOpen);
-    const onCloseRef    = useRef(onClose);
-    useEffect(() => { colorModeRef.current = colorMode; }, [colorMode]);
+    const colorModeRef = useRef('HEXA');
+    const alphaOnRef   = useRef(alphaEnabled);
+    const onChangeRef  = useRef(onChange);
+    const onOpenRef    = useRef(onOpen);
+    const onCloseRef   = useRef(onClose);
+    // - fix 2: track disabled in a ref so the imperative open() always reads the latest value
+    const disabledRef  = useRef(disabled);
+    useEffect(() => { colorModeRef.current = colorMode; },    [colorMode]);
     useEffect(() => { alphaOnRef.current   = alphaEnabled; }, [alphaEnabled]);
-    useEffect(() => { onChangeRef.current  = onChange; }, [onChange]);
-    useEffect(() => { onOpenRef.current    = onOpen; },  [onOpen]);
-    useEffect(() => { onCloseRef.current   = onClose; }, [onClose]);
-=======
-    useEffect(() => { colorModeRef.current = colorMode; }, [colorMode]);
-    useEffect(() => { alphaOnRef.current   = alphaEnabled; }, [alphaEnabled]);
-    useEffect(() => { onChangeRef.current  = onChange; }, [onChange]);
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
+    useEffect(() => { onChangeRef.current  = onChange; },     [onChange]);
+    useEffect(() => { onOpenRef.current    = onOpen; },       [onOpen]);
+    useEffect(() => { onCloseRef.current   = onClose; },      [onClose]);
+    useEffect(() => { disabledRef.current  = disabled; },     [disabled]);
+    // - fix 3: sync alphaVisible state when the alpha prop changes after mount
+    useEffect(() => { setAlphaVisible(alphaEnabled); },       [alphaEnabled]);
 
     // -- Debounce refs ------------------------------------------
     const debounceRef      = useRef(debounceMs);
     const emitTimerRef     = useRef(null);
     const pendingColorsRef = useRef(null);
-<<<<<<< HEAD
     const pendingSourceRef = useRef(null);
     const colorSourceRef   = useRef('drag');   // 'drag' | 'input' | 'api' | 'eyedropper'
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     useEffect(() => { debounceRef.current = debounceMs; }, [debounceMs]);
 
     // -- Active drag ('box' | 'hue' | 'alpha' | null) ----------
-    const drag             = useRef(null);
+    const drag               = useRef(null);
     const currentPointerIdRef = useRef(null);
 
     // -- DOM refs -----------------------------------------------
-    const prevHueRef      = useRef(-1);    // guard redundant gradient repaints
-    const activeRectRef   = useRef(null); // cached getBoundingClientRect on pointerdown
+    const prevHueRef      = useRef(-1);
+    const activeRectRef   = useRef(null);
     const btnRef          = useRef(null);
     const pickerElRef     = useRef(null);
     const colorBoxRef     = useRef(null);
@@ -215,7 +210,7 @@ const ColorPicker = forwardRef(function ColorPicker(
         const s_hsb = b_hsb === 0 ? 0 : 2 * (1 - l_hsl / b_hsb);
         const bx = clamp(s_hsb * 227 + 3, 3, 230);
         const by = clamp((1 - b_hsb) * 127 + 3, 3, 130);
-        if (boxDraggerRef.current) boxDraggerRef.current.style.transform = `translate3d(${bx}px, ${by}px, 0)`;
+        if (boxDraggerRef.current)   boxDraggerRef.current.style.transform   = `translate3d(${bx}px, ${by}px, 0)`;
         const hueX   = clamp((1 - h / 360) * 130, 0, 130);
         const alphaX = clamp(a * 130, 0, 130);
         if (hueDraggerRef.current)   hueDraggerRef.current.style.transform   = `translate3d(${hueX}px, 6.5px, 0)`;
@@ -224,7 +219,7 @@ const ColorPicker = forwardRef(function ColorPicker(
 
     function setInputs(h, s, l, a) {
         const mode = colorModeRef.current;
-        const skip = document.activeElement;   // never overwrite the field being edited
+        const skip = document.activeElement;
         if (mode === 'HEXA') {
             if (hexInputRef.current && hexInputRef.current !== skip)
                 hexInputRef.current.value = HSLAToRGBA(h, s, l, a, true);
@@ -242,7 +237,7 @@ const ColorPicker = forwardRef(function ColorPicker(
         }
     }
 
-    // -- Release pointer capture and reset drag state ---------------
+    // -- Release pointer capture and reset drag state -----------
     const stopDragFn = useRef(null);
     stopDragFn.current = () => {
         if (currentPointerIdRef.current !== null) {
@@ -256,21 +251,16 @@ const ColorPicker = forwardRef(function ColorPicker(
         drag.current = null;
     };
 
-    // -- Flush debounced change immediately (called before close) -
+    // -- Flush debounced change immediately (called before close)
     const flushDebounce = useRef(null);
     flushDebounce.current = () => {
         if (emitTimerRef.current) {
             clearTimeout(emitTimerRef.current);
             emitTimerRef.current = null;
             if (pendingColorsRef.current) {
-<<<<<<< HEAD
                 onChangeRef.current?.(pendingColorsRef.current, pendingSourceRef.current);
                 pendingColorsRef.current = null;
                 pendingSourceRef.current = null;
-=======
-                onChangeRef.current?.(pendingColorsRef.current);
-                pendingColorsRef.current = null;
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             }
         }
     };
@@ -285,7 +275,6 @@ const ColorPicker = forwardRef(function ColorPicker(
             btnRef.current.style.background = colors.hexa;
         }
         colorPrevRef.current?.setAttribute('fill', colors.hexa);
-<<<<<<< HEAD
         const src = colorSourceRef.current;
         if (debounceRef.current > 0) {
             pendingColorsRef.current = colors;
@@ -299,18 +288,6 @@ const ColorPicker = forwardRef(function ColorPicker(
             }, debounceRef.current);
         } else {
             onChangeRef.current?.(colors, src);
-=======
-        if (debounceRef.current > 0) {
-            pendingColorsRef.current = colors;
-            clearTimeout(emitTimerRef.current);
-            emitTimerRef.current = setTimeout(() => {
-                emitTimerRef.current = null;
-                onChangeRef.current?.(pendingColorsRef.current);
-                pendingColorsRef.current = null;
-            }, debounceRef.current);
-        } else {
-            onChangeRef.current?.(colors);
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
         }
     }
 
@@ -381,6 +358,8 @@ const ColorPicker = forwardRef(function ColorPicker(
     // -- Sync UI when picker opens ------------------------------
     useEffect(() => {
         if (!isOpen) return;
+        // - fix 5: portal is now mounted — recalculate position with real offsetHeight
+        setPickerPos(calcPos());
         const { h, s, l, a } = cur.current;
         setStops(h);
         setDraggers(h, s, l, a);
@@ -388,7 +367,6 @@ const ColorPicker = forwardRef(function ColorPicker(
         colorPrevRef.current?.setAttribute('fill', lastHex.current || HSLAToRGBA(h, s, l, a, true));
     }, [isOpen]);
 
-<<<<<<< HEAD
     // -- Fire onOpen / onClose callbacks -----------------------
     const mountedRef = useRef(false);
     useEffect(() => {
@@ -397,30 +375,28 @@ const ColorPicker = forwardRef(function ColorPicker(
         else        onCloseRef.current?.(lastHex.current);
     }, [isOpen]);
 
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
-    // -- Sync inputs when color mode changes --------------------
+    // -- Sync inputs when color mode changes -------------------
     useEffect(() => {
         if (!isOpen) return;
         const { h, s, l, a } = cur.current;
         setInputs(h, s, l, a);
     }, [colorMode]);
 
-    // -- Initialize on mount ------------------------------------
+    // -- Initialize on mount -----------------------------------
     useEffect(() => {
-        const parsed       = parseColor(isValidColorString(color) ? color : '#ff0000');
-        const effectiveA   = alphaOnRef.current ? parsed.a : 1;
-        parsed.a           = effectiveA;
-        cur.current        = { ...parsed };
-        const colors       = buildColorSet(parsed.h, parsed.s, parsed.l, effectiveA);
-        lastHex.current    = colors.hexa;
+        const parsed     = parseColor(isValidColorString(color) ? color : '#ff0000');
+        const effectiveA = alphaOnRef.current ? parsed.a : 1;
+        parsed.a         = effectiveA;
+        cur.current      = { ...parsed };
+        const colors     = buildColorSet(parsed.h, parsed.s, parsed.l, effectiveA);
+        lastHex.current  = colors.hexa;
         if (btnRef.current) {
             btnRef.current.dataset.color    = colors.hexa;
             btnRef.current.style.background = colors.hexa;
         }
     }, []);
 
-    // -- Position picker (flip above/below based on space) ------
+    // -- Position picker (flip above/below based on space) -----
     function calcPos() {
         const rect = btnRef.current.getBoundingClientRect();
         const ph   = pickerElRef.current?.offsetHeight || 250;
@@ -438,10 +414,14 @@ const ColorPicker = forwardRef(function ColorPicker(
         return { top, left };
     }
 
-    // -- Cancel debounce timer on unmount ----------------------
-    useEffect(() => () => clearTimeout(emitTimerRef.current), []);
+    // -- Cancel timers on unmount ------------------------------
+    useEffect(() => () => {
+        clearTimeout(emitTimerRef.current);
+        // - fix 10: also clear copy-done timeout to avoid setState on unmounted component
+        clearTimeout(copyTimeoutRef.current);
+    }, []);
 
-    // -- Reposition on scroll / resize while picker is open ----
+    // -- Reposition on scroll / resize while picker is open ---
     useEffect(() => {
         if (!isOpen) return;
         const handler = () => setPickerPos(calcPos());
@@ -453,7 +433,7 @@ const ColorPicker = forwardRef(function ColorPicker(
         };
     }, [isOpen]);
 
-    // -- Open picker --------------------------------------------
+    // -- Open picker -------------------------------------------
     function handleBtnClick() {
         if (disabled) return;
         if (isOpen) { stopDragFn.current?.(); flushDebounce.current?.(); setIsOpen(false); return; }
@@ -461,7 +441,7 @@ const ColorPicker = forwardRef(function ColorPicker(
         setIsOpen(true);
     }
 
-    // -- setColor (called via ref or internally) ----------------
+    // -- setColor (called via ref or internally) ---------------
     const applySetColor = useRef(null);
     applySetColor.current = (c) => {
         if (!isValidColorString(c)) return;
@@ -469,6 +449,8 @@ const ColorPicker = forwardRef(function ColorPicker(
         if (!alphaOnRef.current) parsed.a = 1;
         cur.current  = { ...parsed };
         const colors = buildColorSet(parsed.h, parsed.s, parsed.l, parsed.a);
+        // - fix 7: deduplicate — do not fire onChange if the color hasn't actually changed
+        if (colors.hexa === lastHex.current) return;
         lastHex.current = colors.hexa;
         if (btnRef.current) {
             btnRef.current.dataset.color    = colors.hexa;
@@ -480,21 +462,14 @@ const ColorPicker = forwardRef(function ColorPicker(
             setInputs(parsed.h, parsed.s, parsed.l, parsed.a);
             colorPrevRef.current?.setAttribute('fill', colors.hexa);
         }
-<<<<<<< HEAD
         onChangeRef.current?.(colors, 'api');
-=======
-        onChangeRef.current?.(colors);
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
     };
 
-    // -- Public API via ref -------------------------------------
+    // -- Public API via ref ------------------------------------
     useImperativeHandle(ref, () => ({
-        setColor:        (c) => applySetColor.current(c),
-        getColor: () => {
-            const p = parseColor(lastHex.current);
-            return buildColorSet(p.h, p.s, p.l, p.a);
-        },
-        setAlphaEnabled: (v) => {
+        setColor:        (c)  => applySetColor.current(c),
+        getColor:        ()   => { const p = parseColor(lastHex.current); return buildColorSet(p.h, p.s, p.l, p.a); },
+        setAlphaEnabled: (v)  => {
             alphaOnRef.current = !!v;
             setAlphaVisible(!!v);
             if (!v) {
@@ -510,15 +485,18 @@ const ColorPicker = forwardRef(function ColorPicker(
                     setInputs(cur.current.h, cur.current.s, cur.current.l, 1);
                     colorPrevRef.current?.setAttribute('fill', colors.hexa);
                 }
+                // - fix 13: notify parent — alpha was forced to 1 so the color may have changed
+                onChangeRef.current?.(colors, 'api');
             }
         },
-        enable:          ()  => {},   // controlled via disabled prop
-        disable:         ()  => {},
-        open:            ()  => { if (disabled) return; setPickerPos(calcPos()); setIsOpen(true); },
-        close:           ()  => { stopDragFn.current?.(); flushDebounce.current?.(); setIsOpen(false); },
+        enable:  () => {},   // controlled via disabled prop
+        disable: () => {},
+        // - fix 2: read disabledRef so late prop changes are respected
+        open:    () => { if (disabledRef.current) return; setPickerPos(calcPos()); setIsOpen(true); },
+        close:   () => { stopDragFn.current?.(); flushDebounce.current?.(); setIsOpen(false); },
     }), []);
 
-    // -- Input handlers -----------------------------------------
+    // -- Input handlers ----------------------------------------
     function onHexInput(e) {
         const v = e.target.value;
         if (HEX_RE.test(v)) {
@@ -526,13 +504,11 @@ const ColorPicker = forwardRef(function ColorPicker(
             cur.current = { ...p };
             setStops(p.h);
             setDraggers(p.h, p.s, p.l, p.a);
-<<<<<<< HEAD
             colorSourceRef.current = 'input';
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             emitChange();
         }
     }
+
     function onRgbaChange() {
         const r = +rRef.current?.value || 0;
         const g = +gRef.current?.value || 0;
@@ -544,12 +520,10 @@ const ColorPicker = forwardRef(function ColorPicker(
         cur.current = { ...p };
         setStops(p.h);
         setDraggers(p.h, p.s, p.l, p.a);
-<<<<<<< HEAD
         colorSourceRef.current = 'input';
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
-        queueUpdate();   // RAF-throttled — skips focused input, prevents event flood
+        queueUpdate();
     }
+
     function onHslaChange() {
         const h = +hRef.current?.value || 0;
         const s = +sRef.current?.value || 0;
@@ -560,20 +534,17 @@ const ColorPicker = forwardRef(function ColorPicker(
         cur.current = { h, s, l, a };
         setStops(h);
         setDraggers(h, s, l, a);
-<<<<<<< HEAD
         colorSourceRef.current = 'input';
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
-        queueUpdate();   // RAF-throttled — skips focused input, prevents event flood
+        queueUpdate();
     }
 
-    // -- Color mode switch --------------------------------------
+    // -- Color mode switch -------------------------------------
     function switchMode() {
         const modes = ['HEXA', 'RGBA', 'HSLA'];
         setColorMode(modes[(modes.indexOf(colorMode) + 1) % 3]);
     }
 
-    // -- EyeDropper ---------------------------------------------
+    // -- EyeDropper --------------------------------------------
     async function handleEyeDropper() {
         if (!('EyeDropper' in window)) return;
         try {
@@ -583,15 +554,12 @@ const ColorPicker = forwardRef(function ColorPicker(
             setStops(p.h);
             setDraggers(p.h, p.s, p.l, p.a);
             setInputs(p.h, p.s, p.l, p.a);
-<<<<<<< HEAD
             colorSourceRef.current = 'eyedropper';
-=======
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
             emitChange();
         } catch (_) {}
     }
 
-    // -- Picker UI (rendered via portal) ------------------------
+    // -- Picker UI (rendered via portal) -----------------------
     const pickerUI = (
         <div
             ref={pickerElRef}
@@ -605,11 +573,7 @@ const ColorPicker = forwardRef(function ColorPicker(
                 width="230"
                 height="130"
                 style={{ touchAction: 'none' }}
-<<<<<<< HEAD
                 onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'box'; colorSourceRef.current = 'drag'; fn.current.box(e.clientX, e.clientY); }}
-=======
-                onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'box'; fn.current.box(e.clientX, e.clientY); }}
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                 onPointerMove={e => { if (drag.current !== 'box') return; fn.current.box(e.clientX, e.clientY); }}
                 onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                 onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}
@@ -689,11 +653,7 @@ const ColorPicker = forwardRef(function ColorPicker(
                         ref={hueSliderRef}
                         width="148" height="22"
                         style={{ touchAction: 'none' }}
-<<<<<<< HEAD
                         onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'hue'; colorSourceRef.current = 'drag'; fn.current.hue(e.clientX); }}
-=======
-                        onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'hue'; fn.current.hue(e.clientX); }}
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                         onPointerMove={e => { if (drag.current !== 'hue') return; fn.current.hue(e.clientX); }}
                         onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                         onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}
@@ -727,11 +687,7 @@ const ColorPicker = forwardRef(function ColorPicker(
                             ref={alphaSliderRef}
                             width="148" height="22"
                             style={{ touchAction: 'none' }}
-<<<<<<< HEAD
                             onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'alpha'; colorSourceRef.current = 'drag'; fn.current.alpha(e.clientX); }}
-=======
-                            onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); currentPointerIdRef.current = e.pointerId; activeRectRef.current = e.currentTarget.getBoundingClientRect(); drag.current = 'alpha'; fn.current.alpha(e.clientX); }}
->>>>>>> bce674a8fae85c59085920af2e082ad81e9439e1
                             onPointerMove={e => { if (drag.current !== 'alpha') return; fn.current.alpha(e.clientX); }}
                             onPointerUp={() => { drag.current = null; currentPointerIdRef.current = null; }}
                             onPointerCancel={() => { drag.current = null; currentPointerIdRef.current = null; }}
@@ -770,7 +726,7 @@ const ColorPicker = forwardRef(function ColorPicker(
                         <div className="hcg_color_col">
                             <label>
                                 <input ref={hexInputRef} type="text" maxLength="9" spellCheck="false"
-                                    name={uid('hex')} defaultValue="#ff0000" onInput={onHexInput} />
+                                    name={uid('hex')} defaultValue={lastHex.current} onInput={onHexInput} />
                                 HEX
                             </label>
                         </div>
